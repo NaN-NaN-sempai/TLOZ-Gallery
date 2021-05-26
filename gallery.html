@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TLOZ Gallery</title>
+    <link rel="icon" type="image/png" href="./imgs/wpp/icon.png?v=2"/>
+    <style>
+        @font-face {
+            font-family: HyliaSerif;
+            src: url(./imgs/wpp/hyliaserif/HyliaSerifBeta-Regular.otf);
+        }
+
+        * {
+            margin: 0;
+            user-select: none;
+            outline: none;
+        }
+
+        body {
+            overflow: hidden;
+            background: url(./imgs/wpp/bg.jpg);
+            background-repeat: no-repeat; 
+            background-size: 100%;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: repeat;
+        }
+
+        .container {
+            width: 100%;
+            height: 300%;
+            background: linear-gradient(to bottom, transparent, rgba(255, 255, 255, 0.5));
+            position: absolute; 
+            transition: top 1s;
+        }
+        .disp {
+            height: 33.33%;
+            width: 100%;
+            position: relative; 
+        }
+        .imagePlaceHolder {
+            width: 95%;
+            height: 90%; 
+            box-shadow: black 0px 0px 100px;
+            background-image: radial-gradient(transparent -10%, rgba(0, 0, 0, 0.5)),
+                              url(./imgs/wpp/containerBg.png);
+
+            background-position: center;
+
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            overflow: hidden;
+        }
+        .imagePlaceHolder img {
+            height: 100%;
+            position: relative;
+            box-shadow: black 0px 0 200px, black 0px 0 200px, black 0px 0 200px;
+            left: 50%; 
+            transform: translateX(-50%);
+        }
+
+        #audio {
+            position: absolute;
+            top: 20px;
+            left: -260px;
+            opacity: .2;
+            transition: left .5s, opacity .5s;
+            animation: showup 1.5s;
+        }
+        #audio p {
+            font-family: HyliaSerif;
+            color: white;
+            text-shadow: black 0px 0px 10px;
+            opacity: 0;
+            transition: .5s;
+        }
+        #audio:hover > p{
+            opacity: 1;
+        }
+        #audio:hover{
+            left: 3px;
+            opacity: .9;
+        }
+
+        @keyframes showup {
+            0% {
+                opacity: .9;
+                left: -260px;
+            }
+            20% {
+                left: -220px;
+            }
+            50% {
+                left: -260px;
+            }
+            65% {
+                left: -220px;
+            }
+            80% {
+                opacity: .9;
+                left: -260px;
+            }
+            99% {
+                opacity: .2;
+                left: -260px;
+            }
+            100% {
+                animation: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container" style="top: 0%;">
+        <div class="disp">
+            <div class="imagePlaceHolder"><img src=""></div>
+        </div>
+        <div class="disp">
+            <div class="imagePlaceHolder"><img src=""></div>
+        </div>
+        <div class="disp">
+            <div class="imagePlaceHolder"><img src=""></div>
+        </div> 
+    </div>
+
+    <div id="audio">
+        <audio controls loop autoplay > 
+            <source src="./imgs/wpp/song.mp3" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <p>The Legend of Zelda: Breath of the Wild - Ridding (Night)</p>
+    </div>
+</body>
+<script>
+    function serverGet(url, method, callback, params = null) {
+        var obj;
+        try {   
+            obj = new XMLHttpRequest();  
+        } catch(e){   
+            try {     
+                obj = new ActiveXObject("Msxml2.XMLHTTP");     
+            } catch(e) {     
+                try { 
+                    obj = new ActiveXObject("Microsoft.XMLHTTP");       
+                } catch(e) {       
+                    alert("Your browser does not support Ajax.");       
+                    return false;       
+                }     
+            }   
+        }
+        obj.onreadystatechange = function() {
+            if(obj.readyState == 4) {
+                callback(obj);
+            } 
+        }
+        obj.open(method, url, true);
+        obj.send(params);
+        return obj; 
+    }
+
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    var images = [];
+
+    serverGet('/serverData', 'get',  function(obj) {
+        images = JSON.parse(obj.response).images;
+        shuffle(images);
+        loadImageF(toppos, imagesindex);
+    });
+
+
+
+    var container = document.querySelector(".container");
+    var toppos = 0;
+    var imagesindex = 0;
+    var topposarr = ["0%", "-100%", "-200%"];
+
+    var imagesElements = document.querySelectorAll("img");
+    var loadImageF = (ei,i) => {
+        //console.log(i, i + 1 < images.length? i + 1: 0); 
+        imagesElements[ei].src = "./imgs/"+images[i]; 
+        imagesElements[ei + 1 < imagesElements.length? ei + 1: 0].src = "./imgs/"+images[i + 1 < images.length? i + 1: 0];
+    }
+    var loadImageB = (ei,i) => {
+        //console.log(i, (i - 1 < 0? images.length - 1: i - 1)); 
+        imagesElements[ei].src = "./imgs/"+images[i]; 
+        imagesElements[ei + 1 < imagesElements.length? ei + 1: 0].src = "./imgs/"+images[i - 1 == 0? images.length - 1: 0];
+    }
+
+    var intervalFunc = () => { 
+        container.style.top = topposarr[toppos];
+
+        delayInterval = setTimeout(() => {
+            functionChose(toppos, imagesindex);
+            canRoll = true; 
+        }, 1200);
+    }
+    var scrollDown = () => {
+        imagesindex = imagesindex - 1 < 0? images.length - 1: imagesindex - 1;
+        toppos = toppos - 1 < 0? 2: toppos - 1;
+        functionChose = loadImageB; 
+        intervalFunc();
+    }
+    var scrollUp = () => { 
+        imagesindex = imagesindex + 1 >= images.length? 0: imagesindex + 1;
+        toppos = toppos + 1 > 2? 0: toppos + 1;
+        functionChose = loadImageF;
+        intervalFunc();
+    }
+
+    var delayInterval;
+    var canRoll = true;
+
+    window.addEventListener("wheel", (e)=>{  
+        if(canRoll){
+            canRoll = false;
+            var functionChose; 
+
+            if(e.deltaY <= 0){ 
+                scrollDown();
+            } else {
+                scrollUp();
+            } 
+        }
+    });
+
+    window.addEventListener('touchstart', handleTouchStart, false);        
+    window.addEventListener('touchmove', handleTouchMove, false);
+
+    var xDown = null;                                                        
+    var yDown = null;
+
+    function getTouches(evt) {
+        return evt.touches || evt.originalEvent.touches;
+    }                                                     
+
+    function handleTouchStart(evt) {
+        const firstTouch = getTouches(evt)[0];                                      
+        xDown = firstTouch.clientX;                                      
+        yDown = firstTouch.clientY;                                      
+    };                                                
+
+    function handleTouchMove(evt) {
+        if ( ! xDown || ! yDown ) {
+            return;
+        }
+
+        var xUp = evt.touches[0].clientX;                                    
+        var yUp = evt.touches[0].clientY;
+
+        var xDiff = xDown - xUp;
+        var yDiff = yDown - yUp;
+
+        if(canRoll){
+            canRoll = false;
+            var functionChose; 
+
+            if ( !(Math.abs( xDiff ) > Math.abs( yDiff )) ) {
+                if ( yDiff > 0 ) {
+                    scrollUp();
+                } else {
+                    scrollDown();
+                }                                                            
+            }
+        }
+        xDown = null;
+        yDown = null;                                             
+    };
+</script>
+</html>
