@@ -58,6 +58,7 @@
         .options a {
             text-decoration: none; 
             color: #faf6db;
+            cursor: pointer; 
         }
         .options p {
             text-align: right;  
@@ -110,13 +111,14 @@
 
     <div class="menuItens">
         <div class="options">
-            <img src="./imgs/wpp/menuLogo/logo.png" alt="Menu Logo">
+            <img src="./imgs/wpp/menuLogo/logo.png" alt="Menu Logo" draggable="false">
             <p class="projectName">Image Gallery</p>
             <div class="textCon">
-                <p><a href="./gallery">Continue</a></p>
-                <p><a href="./gallery">New Game</a></p>
+                <!-- <p><a href="./gallery">Continue</a></p> -->
+                <p><a href="./gallery" onclick="localStorage.setItem('visited', 'yes');">New Game</a></p>
+                <p><a id="options">Options</a></p>
                 <p><a href="https://github.com/NaN-NaN-sempai">Credits</a></p>
-                <p><a href="http://nan-nan-sempai.github.io/">Other Projects</a></p>
+                <p><a href="http://nan-nan-sempai.github.io/">More Information</a></p>
                 <p><a href="https://www.nintendo.com/pt_BR/games/detail/the-legend-of-zelda-breath-of-the-wild-switch/">Downloadable Content</a></p>
             </div>
         </div>
@@ -126,6 +128,13 @@
     
 </body>
 <script> 
+    if(localStorage.visited ==  "yes"){
+        document.querySelector(".textCon").innerHTML = '<p><a href="./gallery">Continue</a></p>' + document.querySelector(".textCon").innerHTML;
+    }
+    document.getElementById("options").addEventListener("click", ()=>{
+        document.querySelector("audio").muted = document.querySelector("audio").muted? false: true; 
+    })
+
     function serverGet(url, method, callback, params = null) {
         var obj;
         try {   
@@ -202,9 +211,6 @@
             }, fadeInterval);
         }, timeInterval);
     }
-
-
-
 
 
     var textConItem = document.querySelectorAll(".textCon a");
