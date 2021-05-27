@@ -14,6 +14,7 @@
         * {
             margin: 0;
             user-select: none;
+            touch-action: none;
             outline: none;
         }
         body {
@@ -42,11 +43,11 @@
             margin-top: 5%;
         }
         .options img { 
-            height: 30%; 
+            height: 30vh; 
             position: absolute;
             right: 0px;
-            -webkit-filter: drop-shadow(0px 0px 3px #faf6db);
-            filter: drop-shadow(0px 0px 3px #faf6db);
+            -webkit-filter: drop-shadow(0px 0px 1vh #faf6db);
+            filter: drop-shadow(0px 0px 1vh #faf6db);
             z-index: 0;
         }
         .options .textCon { 
@@ -60,23 +61,23 @@
         }
         .options p {
             text-align: right;  
-            font-size: 300%;
+            font-size: 5vh;
             font-family: HyliaSerif;
             color: #faf6db;
-            text-shadow: 0px 0px 5px #faf6db;
-            margin-bottom: 25px;
+            text-shadow: 0px 0px 1vh #faf6db;
+            margin-bottom: 1vh;
             z-index: 2;
         }
         .options .projectName{
-            font-size: 250%;
+            font-size: 4.5vh;
         }
         .itemCursor{
             position: absolute;
             transition: top .5s, left .5s, opacity .5s;
             opacity: 1;
-            width: 50px;
-            -webkit-filter: drop-shadow(0px 0px 5px #faf6db);
-            filter: drop-shadow(0px 0px 5px #faf6db);
+            height: 4.5vh;
+            -webkit-filter: drop-shadow(0px 0px 1vh #faf6db);
+            filter: drop-shadow(0px 0px 1vh #faf6db);
         }
         .bg {
             position: absolute;
@@ -99,6 +100,12 @@
     </style>
 </head>
 <body>
+    <div style="display: none;">
+        <audio loop> 
+            <source src="./imgs/wpp/menuSong.mp3" type="audio/mpeg"/>
+        </audio>
+    </div>
+    
     <div class="bg"><img class="bgCon" alt="Background"></div>
 
     <div class="menuItens">
@@ -118,7 +125,7 @@
     <img src="./imgs/wpp/menuLogo/cursor.png" class="itemCursor" alt="Item Cursor">
     
 </body>
-<script>
+<script> 
     function serverGet(url, method, callback, params = null) {
         var obj;
         try {   
@@ -161,7 +168,7 @@
         setbg();
         setTimeout(()=>{ 
             placeCursor();
-        }, 100)
+        }, 100);
     });
 
 
@@ -203,6 +210,7 @@
     var textConItem = document.querySelectorAll(".textCon a");
     var cursor = document.querySelector(".itemCursor").style;
 
+    var selIndex = 0;
     var selItem = textConItem[0];
 
     var placeCursor = () => {
@@ -213,25 +221,53 @@
 
     var opacityInterval;
 
-    Array.from(textConItem).forEach(e=>{
+    Array.from(textConItem).forEach((e,i)=>{
         console.log(e.innerHTML);
 
         e.onmouseover = ()=>{
             selItem = e;
+            selIndex = i;
             placeCursor();
             cursor.opacity = 1;
             clearTimeout(opacityInterval);
         }
         e.onmouseout = ()=>{
             clearTimeout(opacityInterval);
-            opacityInterval = setInterval(() => {
+            opacityInterval = setTimeout(() => { 
                 cursor.opacity = 0;
-            }, 1500);
+            }, 1500); 
         }
+    });
+
+    document.addEventListener("keyup", (e)=>{ 
+        if(e.key == "Enter"){ 
+            selItem.click();
+            return;
+        } 
+        cursor.opacity = 1;
+        if(e.key.toLowerCase() == "w" ||
+           e.key == "ArrowUp"){
+               selIndex = selIndex - 1 < 0? textConItem.length - 1: selIndex - 1;
+               selItem = textConItem[selIndex];
+           }
+        if(e.key.toLowerCase() == "s" ||
+           e.key == "ArrowDown"){
+               selIndex = selIndex + 1 >= textConItem.length? 0: selIndex + 1;
+               selItem = textConItem[selIndex];
+           } 
+        placeCursor();
     })
 
-    document.body.onresize = ()=>{  
+    document.body.onresize = ()=>{
         placeCursor();
-    };
+    }
+
+    var songPlay = true;
+    document.body.onclick = document.body.ontouchstart = () => {
+        if(songPlay){
+            songPlay = false;
+            document.querySelector("audio").play();
+        }
+    }
 </script>
 </html>

@@ -232,6 +232,18 @@
             } 
         }
     });
+    
+
+    document.addEventListener("keyup", (e)=>{  
+        if(e.key.toLowerCase() == "w" ||
+           e.key == "ArrowUp"){
+                scrollDown();
+            }
+        if(e.key.toLowerCase() == "s" ||
+           e.key == "ArrowDown"){
+                scrollUp();
+           }  
+    })
 
     window.addEventListener('touchstart', handleTouchStart, false);        
     window.addEventListener('touchmove', handleTouchMove, false);
