@@ -9,7 +9,11 @@
     <style>
         @font-face {
             font-family: HyliaSerif;
-            src: url(./imgs/wpp/hyliaserif/HyliaSerifBeta-Regular.otf);
+            src: url(./imgs/wpp/fonts/HyliaSerifBeta-Regular.otf);
+        }
+        @font-face {
+            font-family: CalamitySans;
+            src: url(./imgs/wpp/fonts/Calamity-Regular.otf);
         }
         * {
             margin: 0;
@@ -63,21 +67,28 @@
         }
         .options p {
             text-align: right;  
-            font-size: 5vh;
-            font-family: HyliaSerif;
+            font-size: 2.5vh;
+            font-family: CalamitySans;
             color: #faf6db;
             text-shadow: 0px 0px 1vh #faf6db;
-            margin-bottom: 1vh;
+            margin-bottom: 2.5vh;
             z-index: 2;
         }
         .options .projectName{
             font-size: 4.5vh;
+            font-family: HyliaSerif;
+        }
+        .options .bottomInfo { 
+            font-size: 2vh;
+            position: absolute;
+            bottom: 12vh;
+            right: 0;
         }
         .itemCursor{
             position: absolute;
             transition: top .5s, left .5s, opacity .5s;
             opacity: 1;
-            height: 4.5vh;
+            height: 3.3vh;
             -webkit-filter: drop-shadow(0px 0px 1vh #faf6db);
             filter: drop-shadow(0px 0px 1vh #faf6db);
         }
@@ -91,20 +102,50 @@
             position: relative;
             width: 110%; 
             top: 50%;
-            left: 55%;
+            left: 50%;
             opacity: 1;
-            transform: translate(-50%, -50%);
+            transform: translate(-55%, -50%);
             box-shadow: 0px 0px 500px black,
                         0px 0px 500px black,
                         0px 0px 500px black;
-            transition: left 15s linear, opacity 1s;
+            transition: transform 15s linear, opacity 1s; 
+        }
+
+        .clickStart {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            backdrop-filter: blur(2vh);  
+            opacity: 1;
+            transition: opacity 2s;
+        }
+        .clickStart p {
+            overflow:hidden; white-space: nowrap;
+            color: #faf6db;
+            font-family: HyliaSerif;
+            font-size: 7vh;
+            text-align: center;
+            text-shadow: 0px 0px 1vh #faf6db;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 100%;
+            transform: translate(-50%, -50%); 
+            transition: all .17s, top 0, left 0;
+            pointer-events: none;
+        }
+        .bottomInfo {
+            pointer-events: none;
         }
     </style>
 </head>
-<body>
+<body> 
     <div style="display: none;">
         <audio loop> 
             <source src="./imgs/wpp/menuSong.mp3" type="audio/mpeg"/>
+        </audio>
+        <audio id="itemSel"> 
+            <source src="./imgs/wpp/itemSel.mp3" type="audio/mpeg"/>
         </audio>
     </div>
     
@@ -114,27 +155,34 @@
         <div class="options">
             <img src="./imgs/wpp/menuLogo/logo.png" alt="Menu Logo" draggable="false">
             <p class="projectName">Image Gallery</p>
+            <p class="bottomInfo">Ver.0.1<br>©2017 Nintendo</p>
             <div class="textCon">
                 <!-- <p><a href="./gallery">Continue</a></p> -->
                 <p><a href="./gallery" onclick="localStorage.setItem('visited', 'yes');">New Game</a></p>
                 <p><a id="options">Options</a></p>
-                <p><a href="https://github.com/NaN-NaN-sempai">Credits</a></p>
-                <p><a href="http://nan-nan-sempai.github.io/">More Information</a></p>
-                <p><a href="https://www.nintendo.com/pt_BR/games/detail/the-legend-of-zelda-breath-of-the-wild-switch/">Downloadable Content</a></p>
+                <p><a id="credits" href="https://github.com/NaN-NaN-sempai" target="_blank">amiibo</a></p> 
+                <p><a href="https://www.nintendo.com/pt_BR/games/detail/the-legend-of-zelda-breath-of-the-wild-switch/" target="_blank">Downloadable Content</a></p>
             </div>
         </div>
     </div>
 
-    <img src="./imgs/wpp/menuLogo/cursor.png" class="itemCursor" alt="Item Cursor">
+    <img src="./imgs/wpp/menuLogo/cursor.png" class="itemCursor" alt="Item Cursor"> 
     
+    <div class="clickStart">
+        <p>Click anywhere on the screen</p>
+    </div>
 </body>
 <script> 
     if(localStorage.visited ==  "yes"){
         document.querySelector(".textCon").innerHTML = '<p><a href="./gallery">Continue</a></p>' + document.querySelector(".textCon").innerHTML;
     }
-    document.getElementById("options").addEventListener("click", ()=>{
-        document.querySelector("audio").muted = document.querySelector("audio").muted? false: true; 
+    var options = document.getElementById("options");
+    options.addEventListener("click", ()=>{
+        document.querySelector("audio").muted = document.querySelector("audio").muted? false: true;
+            options.innerHTML = (document.querySelector("audio").muted? "Unmute": "Mute") + " Music";
+            placeCursor();
     })
+
 
     function serverGet(url, method, callback, params = null) {
         var obj;
@@ -176,9 +224,6 @@
         images = JSON.parse(obj.response).bg;
         shuffle(images);
         setbg();
-        setTimeout(()=>{ 
-            placeCursor();
-        }, 100);
     });
 
 
@@ -189,7 +234,7 @@
 
     var setbg = () => { 
         pageBg.src = "./imgs/wpp/mainMenuBgs/"+images[bgIndex];
-        pageBg.style.left = "45%"; 
+        pageBg.style.transform = "translate(-45%, -50%)"; 
         pageBg.style.opacity = 1;
 
         setTimeout(()=>{
@@ -201,10 +246,10 @@
             pageBg.src = "./imgs/wpp/mainMenuBgs/"+images[bgIndex];
             pageBg.style.opacity = 1;
             
-            if(pageBg.style.left == "45%"){
-                pageBg.style.left = "55%";  
+            if(pageBg.style.transform == "translate(-45%, -50%)"){
+                pageBg.style.transform = "translate(-55%, -50%)";  
             } else {
-                pageBg.style.left = "45%"; 
+                pageBg.style.transform = "translate(-45%, -50%)";  
             }
             
             setTimeout(()=>{
@@ -216,13 +261,46 @@
 
     var textConItem = document.querySelectorAll(".textCon a");
     var cursor = document.querySelector(".itemCursor").style;
+    var cursorHTML = document.querySelector(".itemCursor");
 
     var selIndex = 0;
     var selItem = textConItem[0];
 
+    var cursorAnimBool = true;
+    var cursorCanAnim = true;
+    var cursorAnimInterval;
+
+    var credits = document.querySelector("#credits");
+
     var placeCursor = () => {
-        cursor.left = (selItem.getBoundingClientRect().x - 70) + "px"; 
-        cursor.top = (selItem.getBoundingClientRect().y + 10) + "px"; 
+        if(selItem == options){  
+            options.innerHTML = (document.querySelector("audio").muted? "Unmute": "Mute") + " Music";
+        } else {
+            options.innerHTML = "Options";
+        } 
+        if(selItem == credits){  
+            credits.innerHTML = "Credits";
+        } else {
+            credits.innerHTML = "amiibo";
+        } 
+        cursor.left = (selItem.getBoundingClientRect().x - 55) + "px"; 
+        cursor.top = (selItem.getBoundingClientRect().y) + "px"; 
+        
+        cursorCanAnim = false;
+        setTimeout(()=>{
+            cursorCanAnim = true;
+        }, 400);
+        clearInterval(cursorAnimInterval);
+        cursorAnimInterval = setInterval(() => {
+            if(cursorCanAnim){
+                if(cursorAnimBool = !cursorAnimBool){
+                    cursor.left = (cursorHTML.getBoundingClientRect().x - 10) + "px";
+                } else {
+                    cursor.left = (cursorHTML.getBoundingClientRect().x + 10) + "px";
+                } 
+            }
+    }, 400);
+        document.querySelector("#itemSel").cloneNode(true).play();
     }
     
 
@@ -246,8 +324,9 @@
         }
     });
 
-    document.addEventListener("keyup", (e)=>{ 
-        if(e.key == "Enter"){ 
+    document.addEventListener("keyup", (e)=>{  
+        if(e.key == "Enter" ||
+           e.key == " "){ 
             selItem.click();
             return;
         } 
@@ -262,6 +341,11 @@
                selIndex = selIndex + 1 >= textConItem.length? 0: selIndex + 1;
                selItem = textConItem[selIndex];
            } 
+           
+        Array.from(document.querySelectorAll("*")).forEach(el=>{
+            el.style.cursor = "none";  
+        })
+
         placeCursor();
     })
 
@@ -275,6 +359,42 @@
             songPlay = false;
             document.querySelector("audio").play();
         }
+    }
+
+    document.onmousemove = () => {
+        Array.from(document.querySelectorAll("*")).forEach(e=>{
+            e.style.cursor = e.tagName == "A"? 
+                "url(./imgs/wpp/menuLogo/cursorPointer.png), auto":
+                "url(./imgs/wpp/menuLogo/cursorMouse.png), auto";
+        }) 
+    }
+
+    var clickStart = document.querySelector(".clickStart");
+    var clickStartText = clickStart.querySelector("p");
+    clickStart.onclick = () => { 
+        clickStartText.style.color = "transparent";
+        clickStartText.style.textShadow = "0px 0px 1vh transparent"
+        clickStart.style.pointerEvents = "none";
+        clickStart.style.opacity = 0;
+        setTimeout(()=>{ 
+            placeCursor();
+        }, 100);
+    }
+
+    
+
+
+    window.addEventListener("mousemove", mouseMoveFunction);
+    function mouseMoveFunction(e){
+        var centerPorc = (window.innerWidth/2)/window.innerWidth;
+        var mousePorc = (e.offsetX-(window.innerWidth/2))/window.innerWidth;
+        var porc = (centerPorc + (mousePorc/20))*100;
+        clickStartText.style.left = porc + "%";  
+        
+        var centerPorcY = (window.innerHeight/2)/window.innerHeight;
+        var mousePorcY = (e.offsetY-(window.innerHeight/2))/window.innerHeight;
+        var porcY = (centerPorcY + (mousePorcY/10))*100;
+        clickStartText.style.top = porcY + "%";
     }
 </script>
 </html>

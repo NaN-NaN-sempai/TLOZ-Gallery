@@ -40,12 +40,12 @@ app.get('/serverData', function(req, res){
 });
 
 
-app.get('/', function(req, res) {
-    res.sendfile("index.html");
+app.get("/", function(req, res) {
+    res.sendFile(__dirname+"/index.html");
 });
 
 app.get('/gallery', function(req, res) {
-    res.sendfile("gallery.html");
+    res.sendFile(__dirname+"/gallery.html");
 });
 
 

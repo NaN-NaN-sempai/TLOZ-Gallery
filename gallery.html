@@ -9,13 +9,14 @@
     <style>
         @font-face {
             font-family: HyliaSerif;
-            src: url(./imgs/wpp/hyliaserif/HyliaSerifBeta-Regular.otf);
+            src: url(./imgs/wpp/fonts/HyliaSerifBeta-Regular.otf);
         }
 
         * {
             margin: 0;
             user-select: none;
             outline: none;
+            cursor: url(./imgs/wpp/menuLogo/cursorMouse.png), auto;
         }
 
         body {
@@ -26,6 +27,7 @@
             background-position: center;
             background-attachment: fixed;
             background-repeat: repeat;
+            cursor: url(./imgs/wpp/menuLogo/cursorMouse.png), auto;
         }
 
         .container {
@@ -64,12 +66,15 @@
         }
 
         #audio {
+            padding-left: 10px;
             position: absolute;
             top: 20px;
             left: -260px;
             opacity: .2;
-            transition: left .5s, opacity .5s;
+            transition: left .5s, opacity .5s, filter 1s;
             animation: showup 1.5s;
+            filter: blur(3px);
+            cursor: auto;
         }
         #audio p {
             font-family: HyliaSerif;
@@ -82,12 +87,14 @@
             opacity: 1;
         }
         #audio:hover{
-            left: 3px;
+            filter: blur(0);
+            left: 0px;
             opacity: .9;
         }
 
         @keyframes showup {
             0% {
+                filter: blur(0);
                 opacity: .9;
                 left: -260px;
             }
@@ -103,18 +110,21 @@
             80% {
                 opacity: .9;
                 left: -260px;
+                filter: blur(0);
             }
             99% {
                 opacity: .2;
                 left: -260px;
             }
             100% {
+                filter: blur(3px);
                 animation: none;
             }
         }
     </style>
 </head>
 <body>
+
     <div class="container" style="top: 0%;">
         <div class="disp">
             <div class="imagePlaceHolder"><img src=""></div>
@@ -135,7 +145,7 @@
         <p>The Legend of Zelda: Breath of the Wild - Ridding (Night)</p>
     </div>
 </body>
-<script>
+<script type="module">
     function serverGet(url, method, callback, params = null) {
         var obj;
         try {   
@@ -196,24 +206,26 @@
         imagesElements[ei + 1 < imagesElements.length? ei + 1: 0].src = "./imgs/"+images[i - 1 == 0? images.length - 1: 0];
     }
 
+    var functionChoose;
+
     var intervalFunc = () => { 
         container.style.top = topposarr[toppos];
 
         delayInterval = setTimeout(() => {
-            functionChose(toppos, imagesindex);
+            functionChoose(toppos, imagesindex);
             canRoll = true; 
         }, 1200);
     }
     var scrollDown = () => {
         imagesindex = imagesindex - 1 < 0? images.length - 1: imagesindex - 1;
         toppos = toppos - 1 < 0? 2: toppos - 1;
-        functionChose = loadImageB; 
+        functionChoose = loadImageB; 
         intervalFunc();
     }
     var scrollUp = () => { 
         imagesindex = imagesindex + 1 >= images.length? 0: imagesindex + 1;
         toppos = toppos + 1 > 2? 0: toppos + 1;
-        functionChose = loadImageF;
+        functionChoose = loadImageF;
         intervalFunc();
     }
 
@@ -223,7 +235,7 @@
     window.addEventListener("wheel", (e)=>{  
         if(canRoll){
             canRoll = false;
-            var functionChose; 
+            var functionChoose; 
 
             if(e.deltaY <= 0){ 
                 scrollDown();
@@ -235,14 +247,17 @@
     
 
     document.addEventListener("keyup", (e)=>{  
-        if(e.key.toLowerCase() == "w" ||
-           e.key == "ArrowUp"){
+        if(canRoll){
+            canRoll = false;
+            if(e.key.toLowerCase() == "w" ||
+               e.key == "ArrowUp"){
                 scrollDown();
             }
-        if(e.key.toLowerCase() == "s" ||
-           e.key == "ArrowDown"){
+            if(e.key.toLowerCase() == "s" ||
+               e.key == "ArrowDown"){
                 scrollUp();
-           }  
+            }  
+        }
     })
 
     window.addEventListener('touchstart', handleTouchStart, false);        
@@ -274,14 +289,17 @@
 
         if(canRoll){
             canRoll = false;
-            var functionChose; 
+            var functionChoose; 
 
             if ( !(Math.abs( xDiff ) > Math.abs( yDiff )) ) {
-                if ( yDiff > 0 ) {
-                    scrollUp();
-                } else {
-                    scrollDown();
-                }                                                            
+                if(canRoll){
+                    canRoll = false;
+                    if ( yDiff > 0 ) {
+                        scrollUp();
+                    } else {
+                        scrollDown();
+                    } 
+                }                                                           
             }
         }
         xDown = null;
